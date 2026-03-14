@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from "react";
+import { Check } from "lucide-react";
 
 const NOTES_LIST = [
 	"Bergamot",
@@ -138,19 +139,7 @@ export default function Sidebar({
 										}`}
 									>
 										{checked && (
-											<svg
-												className="w-2.5 h-2.5 text-white"
-												viewBox="0 0 10 10"
-												fill="none"
-											>
-												<path
-													d="M2 5l2.5 2.5L8 3"
-													stroke="currentColor"
-													strokeWidth="1.5"
-													strokeLinecap="round"
-													strokeLinejoin="round"
-												/>
-											</svg>
+											<Check className="w-2.5 h-2.5 text-white" />
 										)}
 									</div>
 									<span

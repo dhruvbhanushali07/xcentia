@@ -3,6 +3,13 @@ import { supabase } from "@/utils/supabase/client";
 import ShopClient from "./components/ShopClient";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
+
+interface Variant {
+	id: string;
+	volume_ml: number;
+	price: number;
+}
+
 interface Fragrance {
 	id: string;
 	name: string;
@@ -12,8 +19,10 @@ interface Fragrance {
   fragrance_notes: string[] | string;
   image: string;
   created_at: string;
-  price: number;
+  variant: Variant;
 }
+
+
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -41,7 +50,7 @@ export default async function Page() {
   }
 
   const formattedProducts: Fragrance[] = products.map((item: any) => {
-    const price = item.product_variants?.[0]?.price ?? 0;
+    const variant = item.product_variants?.[0] ?? { id: "", volume_ml: 0, price: 0 };
     return {
       id: item.id,
       name: item.name,
@@ -51,7 +60,7 @@ export default async function Page() {
       fragrance_notes: item.fragrance_notes["top"] ||"Signature Blend",
       image: item.image,
       created_at: item.created_at,
-      price
+      variant
     };
   });
 

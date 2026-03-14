@@ -3,17 +3,25 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useBagStore } from "@/providers/Bag-store-provider";
+
+
+interface Variant {
+	id: string;
+	volume_ml: number;
+	price: number;
+}
 
 interface Fragrance {
 	id: string;
 	name: string;
-	slug: string;
-	category: string;
-	fragrance_family: string;
-	fragrance_notes: string[] | string;
-	image: string;
-	created_at: string;
-	price: number;
+  slug: string;
+  category: string;
+  fragrance_family: string;
+  fragrance_notes: string[] | string;
+  image: string;
+  created_at: string;
+  variant: Variant;
 }
 
 export default function ProductCard({
@@ -25,6 +33,22 @@ export default function ProductCard({
 }) {
 	const ref = useRef<HTMLDivElement>(null);
 	const [inBag, setInBag] = useState(false);
+	const addToBag = useBagStore((state) => state.addToBag);
+
+	const handleAddToBag = () => {
+		if (inBag) return; // prevent adding multiple times
+		addToBag({
+			id: frag.id,
+			variantId: frag.variant.id, // Using product ID as variant ID for simplicity; adjust if you have actual variants
+			name: frag.name,
+			price: frag.variant.price,
+			quantity: 1,
+			volume_ml: frag.variant.volume_ml,
+			image: frag.image,
+			slug: frag.slug,
+		});
+		setInBag(true);
+	};
 
 	useEffect(() => {
 		(async () => {
@@ -72,7 +96,7 @@ export default function ProductCard({
 						<button
 							onClick={(e) => {
 								e.preventDefault(); // prevent link navigation
-								setInBag(true);
+								handleAddToBag();
 							}}
 							className={`w-full py-3 text-[9px] font-bold uppercase tracking-[0.28em] transition-all duration-300 ${
 								inBag
@@ -107,7 +131,7 @@ export default function ProductCard({
 					</div>
 					<div className="flex-shrink-0 pt-1">
 						<span className="text-[14px] font-bold text-[#211911]">
-							CHF {frag.price}
+							₹ {frag.variant.price}
 						</span>
 					</div>
 				</div>

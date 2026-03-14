@@ -3,6 +3,14 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import ProductCard from "./ProductCard";
 import Sidebar from "./Sidebar";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+
+
+interface Variant {
+	id: string;
+	volume_ml: number;
+	price: number;
+}
 
 interface Fragrance {
 	id: string;
@@ -13,8 +21,9 @@ interface Fragrance {
   fragrance_notes: string[] | string;
   image: string;
   created_at: string;
-  price: number;
+  variant: Variant;
 }
+
 
 export default function ShopClient({ products, fragrancefamily }: { products: Fragrance[]; fragrancefamily: string[] }) {
 	const [dbFragrances, setDbFragrances] = useState<Fragrance[]>(products);
@@ -64,8 +73,8 @@ export default function ShopClient({ products, fragrancefamily }: { products: Fr
 }
 
 	const sorted = [...filtered].sort((a, b) => {
-		if (sortBy === "Price: High to Low") return b.price - a.price;
-		if (sortBy === "Price: Low to High") return a.price - b.price;
+		if (sortBy === "Price: High to Low") return b.variant.price - a.variant.price;
+		if (sortBy === "Price: Low to High") return a.variant.price - b.variant.price;
 		if (sortBy === "Newest")
 			return (
 				new Date(b.created_at).getTime() -
@@ -200,19 +209,7 @@ export default function ShopClient({ products, fragrancefamily }: { products: Fr
 									disabled={currentPage === 1}
 									className="w-9 h-9 flex items-center justify-center border border-[#b36619]/20 rounded-full hover:bg-[#b36619]/8 hover:border-[#b36619]/50 transition-all duration-200 disabled:opacity-20 disabled:pointer-events-none"
 								>
-									<svg
-										className="w-3.5 h-3.5 text-[#b36619]"
-										fill="none"
-										stroke="currentColor"
-										viewBox="0 0 24 24"
-									>
-										<path
-											strokeLinecap="round"
-											strokeLinejoin="round"
-											strokeWidth={1.5}
-											d="M15 19l-7-7 7-7"
-										/>
-									</svg>
+									<ChevronLeft className="w-3.5 h-3.5 text-[#b36619]" />
 								</button>
 
 								<div className="flex items-center gap-5">
@@ -243,19 +240,7 @@ export default function ShopClient({ products, fragrancefamily }: { products: Fr
 									disabled={currentPage === totalPages}
 									className="w-9 h-9 flex items-center justify-center border border-[#b36619]/20 rounded-full hover:bg-[#b36619]/8 hover:border-[#b36619]/50 transition-all duration-200 disabled:opacity-20 disabled:pointer-events-none"
 								>
-									<svg
-										className="w-3.5 h-3.5 text-[#b36619]"
-										fill="none"
-										stroke="currentColor"
-										viewBox="0 0 24 24"
-									>
-										<path
-											strokeLinecap="round"
-											strokeLinejoin="round"
-											strokeWidth={1.5}
-											d="M9 5l7 7-7 7"
-										/>
-									</svg>
+									<ChevronRight className="w-3.5 h-3.5 text-[#b36619]" />
 								</button>
 							</div>
 						)}
