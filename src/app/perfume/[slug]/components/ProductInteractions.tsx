@@ -2,34 +2,74 @@
 "use client";
 
 import { useState } from "react";
-
+import { useBagStore } from "@/providers/Bag-store-provider";
 interface Variant {
+  id: string;
   volume_ml: number;
   price: number;
 }
 
+interface Product {
+	id: string;
+	name: string;
+	slug: string;
+	description: string;
+	category: string;
+	fragrance_family: string;
+	fragrance_notes: any;
+	image: string;
+	product_variants: Variant[];
+}
+
 interface Props {
+  product: Product;
   variants: Variant[];
   initialPrice: number | null;
 }
 
-export default function ProductInteractions({ variants, initialPrice }: Props) {
+export default function ProductInteractions({ product, variants, initialPrice }: Props) {
+
   const [selectedVariant, setSelectedVariant] = useState<Variant | null>(
     variants[0] ?? null
   );
+  const addToBag = useBagStore((state) => state.addToBag);
+  const removefromBag = useBagStore((state) => state.removeFromBag);
+  const isInBag = useBagStore((state) => state.isItemInBag);
+  const updateQuantity = useBagStore((state) => state.updateQuantity);
   const [quantity, setQuantity] = useState(1);
   const [status, setStatus] = useState<"idle" | "adding" | "added">("idle");
 
   function handleAddToBag() {
+    if (!selectedVariant) return;
+
     setStatus("adding");
-    setTimeout(() => setStatus("added"), 600);
-    setTimeout(() => setStatus("idle"), 2200);
-    // plug in your cart mutation here
-  }
+
+    // Construct the item for the bag
+    const bagItem = {
+        id: product.id,
+        slug: product.slug,
+        variantId: selectedVariant.id, // This is what you needed
+        name: product.name,
+        price: selectedVariant.price,
+        volume_ml: selectedVariant.volume_ml,
+        image: product.image,
+        quantity: quantity
+    };
+
+    // Call your store action
+    addToBag(bagItem);
+
+    // Feedback for the user
+    setTimeout(() => {
+        setStatus("added");
+        setTimeout(() => setStatus("idle"), 2000);
+    }, 600);
+}
+
 
   const price = selectedVariant?.price ?? initialPrice ?? null;
   const total = price !== null ? price * quantity : null;
-
+  console.log(product);
   return (
     <div className="mt-10">
 

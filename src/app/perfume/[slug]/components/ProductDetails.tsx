@@ -1,13 +1,10 @@
-'use client';
 
-import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import ProductInteractions from "./ProductInteractions";
-
-
+import Link from "next/link";
 
 interface Variant {
+	id: string;
 	volume_ml: number;
 	price: number;
 }
@@ -24,18 +21,15 @@ interface Product {
 	product_variants: Variant[];
 }
 
-export default function ProductDetail({ myproduct, relatedProducts }: { myproduct: Product, relatedProducts: Product[] }) {
-	const router = useRouter();
-
-	const [product, setProduct] = useState<Product | null>(myproduct);
-	const [related, setRelated] = useState<Product[]>([]);
-	const [loading, setLoading] = useState(true);
-
-	const [selectedVariant, setSelectedVariant] = useState<Variant | null>(
-		null,
-	);
-	const [addingToCart, setAddingToCart] = useState(false);
-
+export default function ProductDetail({
+	product,
+	relatedProducts,
+}: {
+	product: Product;
+	relatedProducts: Product[];
+}) {
+	
+	
 	// Parse notes safely
 	const parseNotes = (notesData: any, type: "top" | "heart" | "base") => {
 		if (!notesData) return "Undisclosed";
@@ -45,22 +39,8 @@ export default function ProductDetail({ myproduct, relatedProducts }: { myproduc
 		return "Undisclosed";
 	};
 
-    useEffect(() => {
-        setProduct(myproduct);
-        setRelated(relatedProducts);
-        setLoading(false);
-    }, [myproduct, relatedProducts]);
-	
+	console.log("Product in Detail Component:", product);
 
-	if (loading || !product) {
-		return (
-			<div className="min-h-screen flex items-center justify-center bg-white text-black">
-				<h1 className="text-2xl tracking-[0.3em] uppercase animate-pulse">
-					Extracting Essence...
-				</h1>
-			</div>
-		);
-	}
 
 	return (
 		<div className="bg-white text-black min-h-screen overflow-x-hidden cursor-default ">
@@ -88,13 +68,10 @@ export default function ProductDetail({ myproduct, relatedProducts }: { myproduc
 				<div className="w-full lg:w-[55%] p-8 lg:p-16 flex flex-col justify-between z-10 bg-white">
 					{/* Header/Nav */}
 					<nav className="flex items-center justify-between mb-16 lg:mb-0">
-						<button
-							onClick={() => router.back()}
-							data-hover
-							className="text-xs font-bold tracking-[0.2em] uppercase hover:text-[#b36619] transition"
-						>
+						<Link href="/shop" className="text-xs font-bold tracking-[0.2em] uppercase hover:text-[#b36619] transition">
 							[ ← Back ]
-						</button>
+						</Link>
+						
 					</nav>
 
 					{/* Main Typography Area */}
@@ -146,7 +123,7 @@ export default function ProductDetail({ myproduct, relatedProducts }: { myproduc
 									data-hover
 								>
 									<div className="w-[80%]">
-										<h3 className="text-md font-bold uppercase tracking-[0.1em] mb-1">
+										<h3 className="text-md font-bold uppercase tracking-widest mb-1">
 											{item.title}
 										</h3>
 										<p className="text-sm font-light opacity-70 group-hover:opacity-100 transition-opacity leading-relaxed">
@@ -158,6 +135,7 @@ export default function ProductDetail({ myproduct, relatedProducts }: { myproduc
 						</div>
 
 						<ProductInteractions
+							product={product}
 							variants={product.product_variants}
 							initialPrice={null}
 						/>
@@ -166,26 +144,27 @@ export default function ProductDetail({ myproduct, relatedProducts }: { myproduc
 			</div>
 
 			{/* ─── MORE LIKE THIS SECTION (Mimicking "MORE BRANDS" footer) ───────── */}
-			{related.length > 0 && (
+			{relatedProducts.length > 0 && (
 				<div className="bg-white border-t border-black py-16 px-8 lg:px-16">
 					<div className="flex items-end gap-6 mb-16">
 						<h2 className="text-[10vw] lg:text-[6vw] font-black leading-none tracking-tighter uppercase">
 							MORE
 						</h2>
-						<span
+						<Link
+							href="/shop"
 							className="text-[10px] font-bold tracking-[0.2em] uppercase pb-2 lg:pb-4 border-b border-black  "
-							data-hover
-							onClick={() => router.push("/shop")}
 						>
 							[ GO TO CATALOGUE ]
-						</span>
+						</Link>
+
+						
 						<h2 className="text-[10vw] lg:text-[6vw] font-black leading-none tracking-tighter uppercase">
 							SCENTS
 						</h2>
 					</div>
 
 					<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
-						{related.map((rel) => {
+						{relatedProducts.map((rel) => {
 							const startingPrice =
 								rel.product_variants &&
 								rel.product_variants.length > 0
@@ -197,15 +176,13 @@ export default function ProductDetail({ myproduct, relatedProducts }: { myproduc
 									: 0;
 
 							return (
-								<div
+								<Link
 									key={rel.id}
+									href={`/perfume/${rel.slug}`}
 									className="group   flex flex-col"
 									data-hover
-									onClick={() =>
-										router.push(`/perfume/${rel.slug}`)
-									}
 								>
-									<div className="aspect-[4/5] bg-[#f4f4f4] overflow-hidden mb-4 relative">
+									<div className="aspect-4/5 bg-[#f4f4f4] overflow-hidden mb-4 relative">
 										<img
 											src={rel.image}
 											alt={rel.name}
@@ -215,13 +192,14 @@ export default function ProductDetail({ myproduct, relatedProducts }: { myproduc
 									<h4 className="text-lg font-black tracking-tighter uppercase">
 										{rel.name}
 									</h4>
-									<p className="text-xs font-bold tracking-[0.1em] text-gray-500 uppercase mt-1">
+									<p className="text-xs font-bold tracking-widest text-gray-500 uppercase mt-1">
 										{rel.fragrance_family}
 									</p>
 									<p className="text-sm font-semibold mt-2">
 										Starts at ₹ {startingPrice}
 									</p>
-								</div>
+								</Link>
+								
 							);
 						})}
 					</div>

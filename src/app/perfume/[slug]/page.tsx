@@ -2,6 +2,7 @@ import { supabase } from "@/utils/supabase/client";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Variant {
+	id: string;
 	volume_ml: number;
 	price: number;
 }
@@ -33,9 +34,11 @@ export default async function Page({
 	// 2. Now use the awaited slug in your query
 	const { data: product, error } = await supabase
 		.from("products")
-		.select(`*, product_variants (volume_ml, price)`)
+		.select(`*, product_variants(id, volume_ml, price)`)
 		.eq("slug", slug)
 		.single();
+
+	console.log("Supabase Query Result:", { product, error });
 
 	// 3. Handle cases where the product might not exist
 	if (error || !product) {
@@ -53,7 +56,7 @@ export default async function Page({
 
 	return (
 		<ProductDetail
-			myproduct={product}
+			product={product}
 			relatedProducts={relatedProducts || []}
 		/>
 	);
