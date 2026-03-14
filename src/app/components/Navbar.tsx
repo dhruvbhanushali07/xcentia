@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useBagStore } from "@/providers/Bag-store-provider";
 
 const NAV_LINKS = [
 	["Fragrances", "/shop"],
@@ -14,6 +15,8 @@ export default function Navbar() {
 	const [scrolled, setScrolled] = useState(false);
 	const [mobileOpen, setMobileOpen] = useState(false);
 	const pathname = usePathname();
+    const bagItems = useBagStore((state) => state.items);
+    const totalCount = bagItems.reduce((sum, item) => sum + item.quantity, 0);
 
 	useEffect(() => {
 		const onScroll = () => setScrolled(window.scrollY > 10);
@@ -93,7 +96,7 @@ export default function Navbar() {
 					{/* Search */}
 					<button className="p-2 text-[#211911]/40 hover:text-[#211911] transition-colors duration-200 rounded-full hover:bg-black/4">
 						<svg
-							className="w-4 h-4"
+							className="size-6"
 							fill="none"
 							stroke="currentColor"
 							viewBox="0 0 24 24"
@@ -107,36 +110,21 @@ export default function Navbar() {
 						</svg>
 					</button>
 
-					{/* Account */}
-					<button className="p-2 text-[#211911]/40 hover:text-[#211911] transition-colors duration-200 rounded-full hover:bg-black/4">
-						<svg
-							className="w-4 h-4"
-							fill="none"
-							stroke="currentColor"
-							viewBox="0 0 24 24"
-						>
-							<path
-								strokeLinecap="round"
-								strokeLinejoin="round"
-								strokeWidth={1.5}
-								d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z"
-							/>
-						</svg>
-					</button>
+					
 
 					{/* Cart */}
 					<Link
-						href="/cart"
+						href="/your-bag"
 						className={`flex items-center gap-1.5 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.2em]
               transition-colors duration-200
               ${
-					pathname === "/cart"
+					pathname === "/your-bag"
 						? "text-[#b36619]"
 						: "text-[#211911] hover:text-[#b36619]"
 				}`}
 					>
 						<svg
-							className="w-4 h-4"
+							className="size-6"
 							fill="none"
 							stroke="currentColor"
 							viewBox="0 0 24 24"
@@ -148,7 +136,7 @@ export default function Navbar() {
 								d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
 							/>
 						</svg>
-						<span>(0)</span>
+						<span>{totalCount}</span>
 					</Link>
 
 					{/* Mobile menu toggle */}
@@ -198,11 +186,11 @@ export default function Navbar() {
 					</Link>
 				))}
 				<Link
-					href="/cart"
+					href="/your-bag"
 					className="text-[clamp(28px,6vw,40px)] font-light text-[#211911] hover:text-[#b36619] transition-colors duration-200 no-underline"
 					style={{ fontFamily: "'Cormorant Garamond', serif" }}
 				>
-					Cart
+					Your Bag
 				</Link>
 			</div>
 		</>
