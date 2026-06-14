@@ -27,12 +27,12 @@ export default function BagRow({
 		<div className="flex gap-5 py-7 border-b border-[#211911]/8 group">
 			{/* Image */}
 			<Link href={`/perfume/${item.slug}`} className="flex-shrink-0">
-				<div className="relative w-[88px] h-[112px] bg-[#ede5d8] overflow-hidden">
+				<div className="relative w-[100px] h-[120px] bg-[#ede5d8] overflow-hidden">
 					<Image
 						src={item.image}
 						alt={item.name}
 						fill
-						sizes="88px"
+						
 						className="object-cover group-hover:scale-[1.04] transition-transform duration-500"
 					/>
 				</div>
@@ -43,13 +43,13 @@ export default function BagRow({
 				<div>
 					<Link
 						href={`/perfume/${item.slug}`}
-						className="text-[17px] font-light leading-snug text-[#211911] hover:text-[#b36619]
+						className="text-xl font-bold  leading-snug text-[#211911] hover:text-[#b36619]
                       transition-colors duration-300 no-underline block mb-1"
 						style={{ fontFamily: "'Cormorant Garamond', serif" }}
 					>
 						{item.name}
 					</Link>
-					<p className="text-[11px] text-[#211911]/40 font-medium">
+					<p className="text-sm text-[#211911]/40 font-medium">
 						{item.volume_ml} ml
 					</p>
 				</div>
@@ -69,10 +69,10 @@ export default function BagRow({
 							}
 							className="w-8 h-8 flex items-center justify-center text-[#211911]/40 hover:text-[#211911] hover:bg-black/4 transition-all duration-150 select-none"
 						>
-							<Minus className="w-2.5 h-2.5" />
+							<Minus className="w-4 h-4" />
 						</button>
 						<span
-							className="w-9 h-8 flex items-center justify-center text-[12px] font-semibold
+							className="w-9 h-8 flex items-center justify-center text-sm font-semibold
                             border-x border-[#211911]/15 text-[#211911] select-none"
 						>
 							{item.quantity}
@@ -90,7 +90,7 @@ export default function BagRow({
                          hover:text-[#211911] hover:bg-black/4 transition-all duration-150
                          disabled:opacity-25 disabled:cursor-not-allowed select-none"
 						>
-							<Plus className="w-2.5 h-2.5" />
+							<Plus className="w-4 h-4" />
 						</button>
 					</div>
 
@@ -106,11 +106,11 @@ export default function BagRow({
 
 			{/* Price */}
 			<div className="flex-shrink-0 flex flex-col items-end justify-between">
-				<span className="text-[16px] font-bold text-[#211911] tracking-tight">
+				<span className="text-lg font-bold text-[#211911] tracking-tight">
 					₹{item.price * item.quantity}
 				</span>
 				{item.quantity > 1 && (
-					<span className="text-[10px] text-[#211911]/30">
+					<span className="text-sm text-[#211911]/30">
 						₹{item.price} each
 					</span>
 				)}

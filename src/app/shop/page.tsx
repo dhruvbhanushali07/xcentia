@@ -41,7 +41,7 @@ export default async function Page() {
     fragrance_notes,
     image,
     created_at,
-    product_variants ( price )
+    product_variants ( id,volume_ml, price )
   `);
 
   if (error) {

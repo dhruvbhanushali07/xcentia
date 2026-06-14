@@ -34,7 +34,7 @@ export default function ProductCard({
 	const ref = useRef<HTMLDivElement>(null);
 	const [inBag, setInBag] = useState(false);
 	const addToBag = useBagStore((state) => state.addToBag);
-
+	console.log("Rendering ProductCard with frag:", frag);
 	const handleAddToBag = () => {
 		if (inBag) return; // prevent adding multiple times
 		addToBag({
@@ -48,6 +48,16 @@ export default function ProductCard({
 			slug: frag.slug,
 		});
 		setInBag(true);
+		console.log({
+			id: frag.id,
+			variantId: frag.variant.id, // Using product ID as variant ID for simplicity; adjust if you have actual variants
+			name: frag.name,
+			price: frag.variant.price,
+			quantity: 1,
+			volume_ml: frag.variant.volume_ml,
+			image: frag.image,
+			slug: frag.slug,
+		})
 	};
 
 	useEffect(() => {
