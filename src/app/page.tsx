@@ -92,7 +92,7 @@ export default async function HomePage() {
 							className="object-cover"
 						/>
 						{/* Gradient overlay — bottom heavy for text legibility */}
-						<div className="absolute inset-0 bg-linear-to-t from-[#211911]/85 via-[#211911]/20 to-transparent" />
+						<div className="absolute inset-0 bg-linear-to-t from-[#211911]/85 via-[#211911]/70 md:via-[#211911]/30 to-transparent" />
 					</div>
 
 					{/* Hero content */}
