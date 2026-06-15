@@ -4,7 +4,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { supabase } from "@/utils/supabase/client";
+import { supabase } from "@/lib/supabase/client";
 import MarqueeTicker from "./components/MarqueeTicker";
 import CategoryCard from "./components/CategoryCard";
 

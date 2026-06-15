@@ -1,5 +1,5 @@
 
-import { supabase } from "@/utils/supabase/client";
+import { supabase } from "@/lib/supabase/client";
 import ShopClient from "./components/ShopClient";
 
 // ─── Types ────────────────────────────────────────────────────────────────────

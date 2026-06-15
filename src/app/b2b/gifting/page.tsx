@@ -6,7 +6,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { supabase } from "@/utils/supabase/client";
+import { supabase } from "@/lib/supabase/client";
 
 interface Product {
   id: string;
