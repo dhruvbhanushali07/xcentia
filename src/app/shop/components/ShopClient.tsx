@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useCallback } from "react";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import ProductCard from "./ProductCard";
 import Sidebar from "./Sidebar";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-
 
 interface Variant {
 	id: string;
@@ -15,36 +15,35 @@ interface Variant {
 interface Fragrance {
 	id: string;
 	name: string;
-  slug: string;
-  category: string;
-  fragrance_family: string;
-  fragrance_notes: string[] | string;
-  image: string;
-  created_at: string;
-  variant: Variant;
+	slug: string;
+	category: string;
+	fragrance_family: string;
+	fragrance_notes: string[] | string;
+	image: string;
+	created_at: string;
+	variant: Variant;
 }
 
+export default function ShopClient({
+	products,
+	fragrancefamily,
+	totalPage,
+}: {
+	products: Fragrance[];
+	fragrancefamily: string[];
+	totalPage: number;
+}) {
+	const router = useRouter();
+	const pathname = usePathname();
+	const searchParams = useSearchParams();
 
-export default function ShopClient({ products, fragrancefamily }: { products: Fragrance[]; fragrancefamily: string[] }) {
-	const [dbFragrances, setDbFragrances] = useState<Fragrance[]>(products);
-	const [loading, setLoading] = useState(true);
-    const collections = ["All Scents", ...fragrancefamily];
+	const currentPage = Number(searchParams.get("page") ?? 1);
+
+	const collections = ["All Scents", ...fragrancefamily];
 	const [sortBy, setSortBy] = useState("Featured");
-	const [currentPage, setCurrentPage] = useState(1);
 	const [sidebarOpen, setSidebarOpen] = useState(false);
-    const [activeCollection, setActiveCollection] = useState("All Scents");
-    const [activeNotes, setActiveNotes] = useState<string[]>([]);
-	const ITEMS_PER_PAGE = 6;
-
-
-    useEffect(() => {
-        setDbFragrances(products);
-        setLoading(false);
-    }, [products]);
-	// Reset to page 1 whenever filters change
-	useEffect(() => {
-		setCurrentPage(1);
-	}, [activeCollection, activeNotes, sortBy]);
+	const [activeCollection, setActiveCollection] = useState("All Scents");
+	const [activeNotes, setActiveNotes] = useState<string[]>([]);
 
 	const toggleNote = useCallback((n: string) => {
 		setActiveNotes((prev) =>
@@ -52,29 +51,29 @@ export default function ShopClient({ products, fragrancefamily }: { products: Fr
 		);
 	}, []);
 
-	// ── Filter + Sort ──────────────────────────────────────────────────────────
-	let filtered = dbFragrances;
+	let filtered = products;
 	if (activeCollection !== "All Scents") {
-		filtered = filtered.filter((f) => f.fragrance_family === activeCollection);
+		filtered = filtered.filter(
+			(f) => f.fragrance_family === activeCollection,
+		);
 	}
-	// Notes filter: show frags whose notes string contains ANY active note
 	if (activeNotes.length > 0) {
-  filtered = filtered.filter((f) =>
-    activeNotes.some((n) =>
-      Array.isArray(f.fragrance_notes)
-        ? f.fragrance_notes
-            .map(note => note.toLowerCase())
-            .includes(n.toLowerCase())
-        : f.fragrance_notes
-            .toLowerCase()
-            .includes(n.toLowerCase())
-    )
-  );
-}
+		filtered = filtered.filter((f) =>
+			activeNotes.some((n) =>
+				Array.isArray(f.fragrance_notes)
+					? f.fragrance_notes
+							.map((note) => note.toLowerCase())
+							.includes(n.toLowerCase())
+					: f.fragrance_notes.toLowerCase().includes(n.toLowerCase()),
+			),
+		);
+	}
 
 	const sorted = [...filtered].sort((a, b) => {
-		if (sortBy === "Price: High to Low") return b.variant.price - a.variant.price;
-		if (sortBy === "Price: Low to High") return a.variant.price - b.variant.price;
+		if (sortBy === "Price: High to Low")
+			return b.variant.price - a.variant.price;
+		if (sortBy === "Price: Low to High")
+			return a.variant.price - b.variant.price;
 		if (sortBy === "Newest")
 			return (
 				new Date(b.created_at).getTime() -
@@ -83,13 +82,20 @@ export default function ShopClient({ products, fragrancefamily }: { products: Fr
 		return 0;
 	});
 
-	const totalPages = Math.ceil(sorted.length / ITEMS_PER_PAGE);
-	const paginated = sorted.slice(
-		(currentPage - 1) * ITEMS_PER_PAGE,
-		currentPage * ITEMS_PER_PAGE,
-	);
-	const hasFilters =
-		activeCollection !== "All Scents" || activeNotes.length > 0;
+	const buildPageUrl = (page: number) => {
+		const params = new URLSearchParams(searchParams.toString());
+		if (page === 1) {
+			params.delete("page");
+		} else {
+			params.set("page", String(page));
+		}
+		const query = params.toString();
+		return `${pathname}${query ? `?${query}` : ""}`;
+	};
+
+	const goToPage = (page: number) => {
+		router.push(buildPageUrl(page));
+	};
 
 	return (
 		<div className="bg-[#f8f7f6] text-[#211911] min-h-screen overflow-x-hidden">
@@ -101,20 +107,12 @@ export default function ShopClient({ products, fragrancefamily }: { products: Fr
         html { scroll-behavior: smooth; }
       `}</style>
 
-			
-
 			<main className="max-w-[1440px] mx-auto w-full px-8 lg:px-16 py-12">
-				{/* ── Page header ───────────────────────────────────────────────── */}
-				
-
-				{/* ── Layout ────────────────────────────────────────────────────── */}
 				<div className="flex flex-col lg:flex-row gap-14">
-					{/* Sidebar — hidden on mobile unless toggled */}
-					<div
-						className={`lg:block ${sidebarOpen ? "block" : "hidden"}`}
-					>
+					{/* Sidebar */}
+					<div className={`lg:block ${sidebarOpen ? "block" : "hidden"}`}>
 						<Sidebar
-                            collections={collections}
+							collections={collections}
 							activeCollection={activeCollection}
 							setActiveCollection={setActiveCollection}
 							activeNotes={activeNotes}
@@ -129,9 +127,7 @@ export default function ShopClient({ products, fragrancefamily }: { products: Fr
 					<div className="flex-grow min-w-0">
 						<div className="flex items-center justify-between mb-10">
 							<p className="text-[11px] text-[#211911]/35 font-medium uppercase tracking-[0.2em]">
-								{loading
-									? "Loading…"
-									: `${sorted.length} fragrance${sorted.length !== 1 ? "s" : ""}`}
+								{`${sorted.length} fragrance ${sorted.length !== 1 ? "s" : ""}`}
 							</p>
 							<div className="flex items-center gap-1">
 								{["grid_view", "view_agenda"].map((icon) => (
@@ -141,10 +137,7 @@ export default function ShopClient({ products, fragrancefamily }: { products: Fr
 									>
 										<span
 											className="material-symbols-outlined text-[18px] text-[#211911]/35"
-											style={{
-												fontVariationSettings:
-													"'wght' 200",
-											}}
+											style={{ fontVariationSettings: "'wght' 200" }}
 										>
 											{icon}
 										</span>
@@ -153,27 +146,17 @@ export default function ShopClient({ products, fragrancefamily }: { products: Fr
 							</div>
 						</div>
 
-						{loading ? (
-							<div className="flex flex-col items-center justify-center py-40 gap-5">
-								<div className="w-8 h-8 border border-[#b36619]/30 border-t-[#b36619] rounded-full animate-spin" />
-								<p className="text-[11px] tracking-[0.3em] text-[#b36619]/60 uppercase font-medium">
-									Loading Archives
-								</p>
-							</div>
-						) : paginated.length === 0 ? (
+						{sorted.length === 0 ? (
 							<div className="flex flex-col items-center justify-center py-40 gap-4 text-center">
 								<p
 									className="text-[clamp(32px,3vw,44px)] font-light text-[#211911]/15"
-									style={{
-										fontFamily:
-											"'Cormorant Garamond', serif",
-									}}
+									style={{ fontFamily: "'Cormorant Garamond', serif" }}
 								>
 									No fragrances found
 								</p>
 								<p className="text-[12px] text-[#211911]/35 max-w-xs leading-relaxed">
-									Try adjusting your filters or clearing them
-									to explore the full collection.
+									Try adjusting your filters or clearing them to explore
+									the full collection.
 								</p>
 								<button
 									onClick={() => {
@@ -187,25 +170,17 @@ export default function ShopClient({ products, fragrancefamily }: { products: Fr
 							</div>
 						) : (
 							<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-x-10 gap-y-16">
-								{paginated.map((frag, i) => (
-									<ProductCard
-										key={frag.id}
-										frag={frag}
-										index={i}
-									/>
+								{sorted.map((frag, i) => (
+									<ProductCard key={frag.id} frag={frag} index={i} />
 								))}
 							</div>
 						)}
 
 						{/* Pagination */}
-						{!loading && totalPages > 1 && (
+						{totalPage > 1 && (
 							<div className="mt-24 flex items-center justify-center gap-8">
 								<button
-									onClick={() =>
-										setCurrentPage((p) =>
-											Math.max(1, p - 1),
-										)
-									}
+									onClick={() => goToPage(currentPage - 1)}
 									disabled={currentPage === 1}
 									className="w-9 h-9 flex items-center justify-center border border-[#b36619]/20 rounded-full hover:bg-[#b36619]/8 hover:border-[#b36619]/50 transition-all duration-200 disabled:opacity-20 disabled:pointer-events-none"
 								>
@@ -213,31 +188,26 @@ export default function ShopClient({ products, fragrancefamily }: { products: Fr
 								</button>
 
 								<div className="flex items-center gap-5">
-									{Array.from(
-										{ length: totalPages },
-										(_, i) => i + 1,
-									).map((p) => (
-										<button
-											key={p}
-											onClick={() => setCurrentPage(p)}
-											className={`text-[13px] font-medium transition-all duration-200 pb-1 border-b-2 ${
-												currentPage === p
-													? "text-[#b36619] border-[#b36619]"
-													: "text-[#211911]/30 hover:text-[#211911] border-transparent"
-											}`}
-										>
-											{String(p).padStart(2, "0")}
-										</button>
-									))}
+									{Array.from({ length: totalPage }, (_, i) => i + 1).map(
+										(p) => (
+											<a
+												key={p}
+												href={buildPageUrl(p)}
+												className={`text-[13px] font-medium transition-all duration-200 pb-1 border-b-2 ${
+													currentPage === p
+														? "text-[#b36619] border-[#b36619]"
+														: "text-[#211911]/30 hover:text-[#211911] border-transparent"
+												}`}
+											>
+												{String(p).padStart(2, "0")}
+											</a>
+										),
+									)}
 								</div>
 
 								<button
-									onClick={() =>
-										setCurrentPage((p) =>
-											Math.min(totalPages, p + 1),
-										)
-									}
-									disabled={currentPage === totalPages}
+									onClick={() => goToPage(currentPage + 1)}
+									disabled={currentPage === totalPage}
 									className="w-9 h-9 flex items-center justify-center border border-[#b36619]/20 rounded-full hover:bg-[#b36619]/8 hover:border-[#b36619]/50 transition-all duration-200 disabled:opacity-20 disabled:pointer-events-none"
 								>
 									<ChevronRight className="w-3.5 h-3.5 text-[#b36619]" />
@@ -248,16 +218,12 @@ export default function ShopClient({ products, fragrancefamily }: { products: Fr
 				</div>
 			</main>
 
-			{/* ── FOOTER ───────────────────────────────────────────────────────── */}
+			{/* Footer */}
 			<footer className="bg-[#211911] text-[#f8f7f6]/45 pt-20 pb-10 px-8 lg:px-16 mt-24">
 				<div className="max-w-[1440px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
 					<div className="flex flex-col gap-6">
 						<div className="flex items-center gap-3 text-[#f8f7f6]">
-							<svg
-								className="w-5 h-5 text-[#b36619]"
-								viewBox="0 0 48 48"
-								fill="none"
-							>
+							<svg className="w-5 h-5 text-[#b36619]" viewBox="0 0 48 48" fill="none">
 								<path
 									d="M8.57829 8.57829C5.52816 11.6284 3.451 15.5145 2.60947 19.7452C1.76794 23.9758 2.19984 28.361 3.85056 32.3462C5.50128 36.3314 8.29667 39.7376 11.8832 42.134C15.4698 44.5305 19.6865 45.8096 24 45.8096C28.3135 45.8096 32.5302 44.5305 36.1168 42.134C39.7033 39.7375 42.4987 36.3314 44.1494 32.3462C45.8002 28.361 46.2321 23.9758 45.3905 19.7452C44.549 15.5145 42.4718 11.6284 39.4217 8.57829L24 24L8.57829 8.57829Z"
 									fill="currentColor"
@@ -277,21 +243,11 @@ export default function ShopClient({ products, fragrancefamily }: { products: Fr
 					{[
 						{
 							title: "Explore",
-							links: [
-								"Our Process",
-								"Store Locator",
-								"The Lab",
-								"Journal",
-							],
+							links: ["Our Process", "Store Locator", "The Lab", "Journal"],
 						},
 						{
 							title: "Service",
-							links: [
-								"Shipping & Returns",
-								"Privacy Policy",
-								"FAQ",
-								"Contact",
-							],
+							links: ["Shipping & Returns", "Privacy Policy", "FAQ", "Contact"],
 						},
 					].map((col) => (
 						<div key={col.title} className="flex flex-col gap-5">
@@ -327,18 +283,8 @@ export default function ShopClient({ products, fragrancefamily }: { products: Fr
 								className="bg-transparent border-none focus:outline-none text-[12px] w-full placeholder:text-[#f8f7f6]/18 text-[#f8f7f6] font-light"
 							/>
 							<button className="text-[#b36619] hover:translate-x-0.5 transition-transform duration-200 flex-shrink-0">
-								<svg
-									className="w-4 h-4"
-									fill="none"
-									stroke="currentColor"
-									viewBox="0 0 24 24"
-								>
-									<path
-										strokeLinecap="round"
-										strokeLinejoin="round"
-										strokeWidth={1.5}
-										d="M14 5l7 7-7 7M3 12h18"
-									/>
+								<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14 5l7 7-7 7M3 12h18" />
 								</svg>
 							</button>
 						</div>
