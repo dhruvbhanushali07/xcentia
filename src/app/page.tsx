@@ -4,7 +4,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { supabase } from "@/lib/supabase/client";
+import {createClient} from "@/lib/supabase/client";
+
 import MarqueeTicker from "./components/MarqueeTicker";
 import CategoryCard from "./components/CategoryCard";
 
@@ -30,34 +31,35 @@ const CATEGORIES = [
 		label: "Men",
 		sub: "Woody · Spicy · Oud",
 		image: "https://images.unsplash.com/photo-1641248775395-2b938a7c099a?q=80&w=765&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-		href: "/shop",
+		href: "/shop/men-perfume",
 	},
 	{
 		key: "women",
 		label: "Women",
 		sub: "Floral · Sweet · Soft",
 		image: "https://images.unsplash.com/photo-1592400374401-002fe1d25961?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-		href: "/shop",
+		href: "/shop/women-perfume",
 	},
 	{
 		key: "unisex",
 		label: "Unisex",
 		sub: "Fresh · Aquatic · Citrus",
 		image: "https://images.unsplash.com/photo-1723391962110-299d412ca046?q=80&w=764&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-		href: "/shop",
+		href: "/shop/unisex-perfume",
 	},
 ] as const;
 
 const TICKER_WORDS = [
 	"Eau de Parfum",
 	"Swiss Crafted",
-	"Free Shipping Above ₹15,000",
+	"Free Shipping Above ₹500",
 	"New Arrivals",
 	"Luxury Oud",
 	"Signature Blends",
 ];
 
 export default async function HomePage() {
+	const supabase= createClient()
 	// Fetch featured products — server side, zero client JS
 	const { data: products } = await supabase
 		.from("products")

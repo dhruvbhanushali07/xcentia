@@ -6,7 +6,8 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { supabase } from "@/lib/supabase/client";
+import {createClient} from "@/lib/supabase/client";
+
 
 interface Product {
   id: string;
@@ -44,6 +45,7 @@ const BOX_OPTIONS = [
 const QTY_OPTIONS = ["25–50", "50–100", "100–200", "200–500", "500+"];
 
 export default function GiftingPage() {
+  const supabase= createClient()
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);

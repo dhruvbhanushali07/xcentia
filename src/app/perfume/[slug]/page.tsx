@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase/client";
+import { createClient } from "@/lib/supabase/client";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Variant {
@@ -30,7 +30,7 @@ export default async function Page({
 }) {
 	// 1. Await the params first
 	const { slug } = await params;
-
+	const supabase = createClient();
 	// 2. Now use the awaited slug in your query
 	const { data: product, error } = await supabase
 		.from("products")

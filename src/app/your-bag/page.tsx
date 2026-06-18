@@ -1,4 +1,5 @@
-import { supabase } from "@/lib/supabase/client";
+import {createClient} from "@/lib/supabase/client";
+
 import BagClient from "./components/BagClient";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -22,6 +23,7 @@ interface Product {
 }
 
 export default async function YourBagPage() {
+	const supabase= createClient()
 	const { data:suggestion } = await supabase
 		.from("products")
 		.select(
