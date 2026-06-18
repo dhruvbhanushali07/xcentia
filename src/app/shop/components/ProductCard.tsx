@@ -34,7 +34,6 @@ export default function ProductCard({
 	const ref = useRef<HTMLDivElement>(null);
 	const [inBag, setInBag] = useState(false);
 	const addToBag = useBagStore((state) => state.addToBag);
-	console.log("Rendering ProductCard with frag:", frag);
 	const handleAddToBag = () => {
 		if (inBag) return; // prevent adding multiple times
 		addToBag({
